@@ -60,13 +60,13 @@ module Rouge
         end
 
         # Builtin pragmas
-        rule %r/({-#)(\s+)(BUILTIN)/ do
-          groups Comment::Preproc, Text, Keyword::Pseudo
+        rule %r/({-#\s*)(BUILTIN)(\s+)/ do
+          groups Comment::Preproc, Keyword::Pseudo, Comment::Preproc
           push :builtin
         end
 
-        # All other block comments
-        rule %r/{-#/, Comment::Preproc, :pragma
+        # Other pragmas and block comments
+        rule %r/{-#\s*/, Comment::Preproc, :pragma
         rule %r/{-/, Comment::Multiline, :comment
         rule %r/{!/, Comment::Special, :hole
 
@@ -126,21 +126,30 @@ module Rouge
       end
 
       state :builtin do
-        rule %r/\s+/, Comment::Preproc
         keywords %r/\w+/ do
-          rule BUILTINS, Keyword::Pseudo
+          rule BUILTINS do
+            token Keyword::Pseudo
+            goto :pragma_end
+          end
+          default Error
         end
-        rule %r/\s+/, Comment::Preproc
-        rule %r/.+#-}/, Comment::Preproc, :pop!
       end
 
       state :pragma do
-        rule %r/\s+/, Comment::Preproc
         keywords %r/\w+/ do
-          rule PRAGMAS, Keyword::Pseudo
+          rule PRAGMAS do
+            token Keyword::Pseudo
+            goto :pragma_end
+          end
+          default Error
         end
-        rule %r/\s+/, Comment::Preproc
-        rule %r/.+#-}/, Comment::Preproc, :pop!
+      end
+
+      # Pragmas aren't nested
+      state :pragma_end do
+        rule %r/[^#]+/, Comment::Preproc
+        rule %r/#-}/, Comment::Preproc, :pop!
+        rule %r/./, Comment::Preproc
       end
 
       state :comment do

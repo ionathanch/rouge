@@ -1,4 +1,5 @@
 {-# OPTIONS --prop #-}
+{-# OPTIONS # #- # #-}
 
 module agda where
 
@@ -32,7 +33,7 @@ cong f (refl x) = refl (f x)
 data ℕ : Set where
   Z  : ℕ
   S  : ℕ → ℕ
-{-# BUILTIN NATURAL ℕ #-}
+{-# BUILTIN NATURAL  ℕ  #-}
 
 _+_ : ℕ → ℕ → ℕ
 Z   + n = n
@@ -104,11 +105,12 @@ some-numbers = [
 some-chars = [
   '\x237C',
   '\b',
-  '\BEL'
+  '\BEL',
+  '\'',
+  '"',
 ]
 
 some-strings = [
-  '"',
   "",
   "\BEL is the same as \^G is the same as \a is the same as \x07 is the same as \o07",
   "\"'\"'\""
